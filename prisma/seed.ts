@@ -11,13 +11,14 @@ async function main() {
       description: "Main electronics inventory",
       fieldMetas: {
         create: [
-          { fieldKey: "text1", fieldType: "text", title: "Brand", showInTable: true, sortOrder: 0 },
-          { fieldKey: "text2", fieldType: "text", title: "Model", showInTable: true, sortOrder: 1 },
-          { fieldKey: "text3", fieldType: "text", title: "Color", showInTable: false, sortOrder: 2 },
-          { fieldKey: "num1", fieldType: "numeric", title: "Price ($)", showInTable: true, sortOrder: 3 },
-          { fieldKey: "num2", fieldType: "numeric", title: "Stock", showInTable: true, sortOrder: 4 },
-          { fieldKey: "bool1", fieldType: "boolean", title: "In Stock", showInTable: true, sortOrder: 5 },
-          { fieldKey: "link1", fieldType: "link", title: "Image", showInTable: true, sortOrder: 6 },
+          // fieldType must be UPPERCASE to match the Prisma Enum
+          { fieldKey: "text1", fieldType: "TEXT", title: "Brand", showInTable: true, sortOrder: 0 },
+          { fieldKey: "text2", fieldType: "TEXT", title: "Model", showInTable: true, sortOrder: 1 },
+          { fieldKey: "text3", fieldType: "TEXT", title: "Color", showInTable: false, sortOrder: 2 },
+          { fieldKey: "num1", fieldType: "NUMBER", title: "Price ($)", showInTable: true, sortOrder: 3 },
+          { fieldKey: "num2", fieldType: "NUMBER", title: "Stock", showInTable: true, sortOrder: 4 },
+          { fieldKey: "bool1", fieldType: "BOOLEAN", title: "In Stock", showInTable: true, sortOrder: 5 },
+          { fieldKey: "link1", fieldType: "LINK", title: "Image", showInTable: true, sortOrder: 6 },
         ],
       },
       idTemplate: {
