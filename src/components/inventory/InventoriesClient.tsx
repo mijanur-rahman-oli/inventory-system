@@ -216,7 +216,7 @@ function CreateInventoryModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-lg font-semibold text-[var(--text)] mb-5">
           New Inventory
         </h2>
-        <form action={createInventory} className="space-y-4">
+       <form action={async (formData) => { await createInventory(formData); }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
               Name *
