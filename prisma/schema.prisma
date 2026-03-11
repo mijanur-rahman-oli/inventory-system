@@ -8,24 +8,23 @@ datasource db {
 }
 
 model Inventory {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   userId      String
   name        String
   description String?
   imageUrl    String?
-  version     Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  fieldMetas FieldMeta[]
-  idTemplate IdTemplate?
-  items      Item[]
-  posts      Post[]
+  version     Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  fieldMetas  FieldMeta[]
+  idTemplate  IdTemplate?
+  items       Item[]
+  posts       Post[]
 
   @@index([userId])
   @@index([userId, name])
 }
-// 1. Add this enum at the top or bottom of your file
+
 enum FieldKey {
   text1
   text2
@@ -44,15 +43,21 @@ enum FieldKey {
   link3
 }
 
+// Added this Enum to fix the "Type string is not assignable to FieldType" error
+enum FieldType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  LINK
+  MULTILINE
+}
+
 model FieldMeta {
   id          String    @id @default(cuid())
   inventoryId String
   inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-  
-  // 2. Change 'String' to 'FieldKey'
   fieldKey    FieldKey
-  
-  fieldType   String
+  fieldType   FieldType // Updated from String to FieldType
   title       String
   description String?
   showInTable Boolean   @default(true)
@@ -76,25 +81,23 @@ model Item {
   inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
   customId    String?
   version     Int       @default(0)
-
-  text1      String?
-  text2      String?
-  text3      String?
-  multiline1 String?
-  multiline2 String?
-  multiline3 String?
-  num1       Decimal?  @db.Decimal(18, 4)
-  num2       Decimal?  @db.Decimal(18, 4)
-  num3       Decimal?  @db.Decimal(18, 4)
-  bool1      Boolean?
-  bool2      Boolean?
-  bool3      Boolean?
-  link1      String?
-  link2      String?
-  link3      String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  text1       String?
+  text2       String?
+  text3       String?
+  multiline1  String?
+  multiline2  String?
+  multiline3  String?
+  num1        Decimal?  @db.Decimal(18, 4)
+  num2        Decimal?  @db.Decimal(18, 4)
+  num3        Decimal?  @db.Decimal(18, 4)
+  bool1       Boolean?
+  bool2       Boolean?
+  bool3       Boolean?
+  link1       String?
+  link2       String?
+  link3       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@unique([inventoryId, customId])
   @@index([inventoryId])

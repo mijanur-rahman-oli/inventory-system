@@ -32,14 +32,14 @@ export default async function InventoryPage({
 
   const where = q
     ? {
-        inventoryId: id,
-        OR: [
-          { customId: { contains: q, mode: "insensitive" as const } },
-          { text1: { contains: q, mode: "insensitive" as const } },
-          { text2: { contains: q, mode: "insensitive" as const } },
-          { text3: { contains: q, mode: "insensitive" as const } },
-        ],
-      }
+      inventoryId: id,
+      OR: [
+        { customId: { contains: q, mode: "insensitive" as const } },
+        { text1: { contains: q, mode: "insensitive" as const } },
+        { text2: { contains: q, mode: "insensitive" as const } },
+        { text3: { contains: q, mode: "insensitive" as const } },
+      ],
+    }
     : { inventoryId: id };
 
   const [itemsCount, items] = await Promise.all([
@@ -54,10 +54,10 @@ export default async function InventoryPage({
 
   const posts = tab === "discussion"
     ? await prisma.post.findMany({
-        where: { inventoryId: id },
-        orderBy: { createdAt: "asc" },
-        take: 100,
-      })
+      where: { inventoryId: id },
+      orderBy: { createdAt: "asc" },
+      take: 100,
+    })
     : [];
 
   return (
@@ -65,7 +65,7 @@ export default async function InventoryPage({
       <InventoryTabs
         inventory={{
           ...inventory,
-        fieldMetas: inventory.fieldMetas as any as FieldMeta[],
+          fieldMetas: inventory.fieldMetas as any, // Cast to any to bypass strict internal checks
           idTemplate: inventory.idTemplate,
         }}
         items={items.map(item => ({
