@@ -141,7 +141,7 @@ export function ItemFormModal({ fieldMetas, item, onClose, onSave }: Props) {
                 : <Upload className="w-4 h-4" />
               }
             </button>
-            {val && typeof val === "string" && val.startsWith("http") && (
+            {(val as string) && typeof val === "string" && val.startsWith("http") && (
               <a href={val} target="_blank" rel="noreferrer"
                 className="px-3 py-2 text-xs text-[var(--accent)] border border-[var(--border)] rounded-lg hover:underline"
               >
