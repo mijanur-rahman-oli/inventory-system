@@ -2,6 +2,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
+import { FieldMeta } from "@prisma/client";
 
 export default async function InventoryPage({
   params,
@@ -64,7 +65,7 @@ export default async function InventoryPage({
       <InventoryTabs
         inventory={{
           ...inventory,
-          fieldMetas: inventory.fieldMetas,
+         fieldMetas: inventory.fieldMetas as FieldMeta[],
           idTemplate: inventory.idTemplate,
         }}
         items={items.map(item => ({
