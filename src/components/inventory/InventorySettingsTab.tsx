@@ -85,7 +85,11 @@ export function InventorySettingsTab({ inventory }: Props) {
       await updateInventory(inventory.id, inventory.version, { name, description: desc });
       await saveFieldMetas(
         inventory.id,
-        metas.map((m, i) => ({ ...m, sortOrder: i }))
+        metas.map((m, i) => ({
+          ...m,
+          sortOrder: i,
+          description: m.description ?? undefined // This converts null to undefined
+        }))
       );
       setSaveStatus("saved");
       setIsDirty(false);
