@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { FieldKey, FieldType } from "@prisma/client";
 
 const InventorySchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -22,6 +23,7 @@ export async function createInventory(formData: FormData) {
   });
 
   if (!parsed.success) {
+    // Fixed: Zod uses .issues, not .errors
     return { error: parsed.error.issues[0].message };
   }
 
@@ -90,7 +92,7 @@ export async function saveFieldMetas(
     fieldKey: string;
     fieldType: string;
     title: string;
-    description?: string;
+    description?: string | null; // Allow null from Prisma
     showInTable: boolean;
     sortOrder: number;
   }>
@@ -109,21 +111,22 @@ export async function saveFieldMetas(
         where: {
           inventoryId_fieldKey: {
             inventoryId,
-            fieldKey: meta.fieldKey,
+            fieldKey: meta.fieldKey as FieldKey, // Cast to Enum
           },
         },
         update: {
           title: meta.title,
-          description: meta.description,
+          description: meta.description ?? undefined, // Convert null to undefined
           showInTable: meta.showInTable,
           sortOrder: meta.sortOrder,
+          fieldType: meta.fieldType as FieldType, // Cast to Enum
         },
         create: {
           inventoryId,
-          fieldKey: meta.fieldKey,
-          fieldType: meta.fieldType,
+          fieldKey: meta.fieldKey as FieldKey, // Cast to Enum
+          fieldType: meta.fieldType as FieldType, // Cast to Enum
           title: meta.title,
-          description: meta.description,
+          description: meta.description ?? undefined,
           showInTable: meta.showInTable,
           sortOrder: meta.sortOrder,
         },
@@ -148,10 +151,10 @@ export async function saveIdTemplate(
 
   await prisma.idTemplate.upsert({
     where: { inventoryId },
-    update: { elements: JSON.stringify(elements) },
+    update: { elements: JSON.stringify(elements) as any }, // JSON handled as string/Json
     create: {
       inventoryId,
-      elements: JSON.stringify(elements),
+      elements: JSON.stringify(elements) as any,
       sequenceVal: 0,
     },
   });
