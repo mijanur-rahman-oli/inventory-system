@@ -71,8 +71,8 @@ export function ItemsTab({
     if (!confirm(`Are you sure you want to delete ${selected.size} item(s)?`)) return;
     startTransition(async () => {
       const result = await deleteItems(inventory.id, Array.from(selected));
-      if (result && "error" in result) {
-        toast.error(result.error ?? "Failed to delete items");
+      if (result && typeof result === "object" && "error" in result) {
+        toast.error(String(result.error) ?? "Failed to delete items");
         return;
       }
       setSelected(new Set());
@@ -260,7 +260,10 @@ export function ItemsTab({
           onClose={() => setShowCreate(false)}
           onSave={async (data) => {
             const res = await createItem(inventory.id, data);
-            if (res && "error" in res) return toast.error(res.error);
+            if (res && typeof res === 'object' && 'error' in res) {
+              toast.error(String(res.error));
+              return;
+            }
             toast.success("Item created");
             setShowCreate(false);
             router.refresh();
@@ -276,7 +279,10 @@ export function ItemsTab({
           onClose={() => setEditItem(null)}
           onSave={async (data) => {
             const res = await updateItem(inventory.id, editItem.id, editItem.version, data);
-            if (res && "error" in res) return toast.error("Update failed (Conflict detected)");
+            if (res && typeof res === 'object' && 'error' in res) {
+              toast.error(String(res.error) || "Update failed (Conflict detected)");
+              return;
+            }
             toast.success("Item updated");
             setEditItem(null);
             router.refresh();
