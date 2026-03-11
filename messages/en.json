@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventories": "Inventories",
+    "settings": "Settings",
+    "admin": "Admin"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "error": "Error",
+    "confirm": "Confirm",
+    "back": "Back",
+    "new": "New",
+    "noResults": "No results found"
+  },
+  "inventory": {
+    "title": "Inventories",
+    "new": "New Inventory",
+    "name": "Name",
+    "description": "Description",
+    "items": "Items",
+    "deleteConfirm": "Delete selected inventories?",
+    "tabs": {
+      "items": "Items",
+      "settings": "Settings",
+      "customId": "Custom ID",
+      "discussion": "Discussion"
+    }
+  },
+  "items": {
+    "new": "New Item",
+    "customId": "Custom ID",
+    "deleteConfirm": "Delete {count} selected item(s)?",
+    "noItems": "No items yet. Create your first item."
+  },
+  "discussion": {
+    "title": "Discussion",
+    "placeholder": "Write a message...",
+    "send": "Send",
+    "noMessages": "No messages yet. Start the conversation!"
+  },
+  "settings": {
+    "title": "Settings",
+    "fields": "Custom Fields",
+    "autoSaveHint": "Changes auto-save every 8 seconds",
+    "fieldTypes": {
+      "text": "Single-line Text",
+      "multiline": "Multi-line Text",
+      "numeric": "Numeric",
+      "link": "Link / Image",
+      "boolean": "Boolean"
+    }
+  }
+}
