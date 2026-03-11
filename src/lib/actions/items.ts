@@ -51,7 +51,8 @@ export async function createItem(inventoryId: string, data: unknown) {
   });
 
   if (template && (template.elements as unknown[]).length > 0) {
-    const elements = template.elements as IdElement[];
+    if (template && (template.elements as any).length > 0) {
+  const elements = template.elements as unknown as IdElement[];
     let attempts = 0;
     let generated = "";
 
