@@ -50,9 +50,9 @@ export async function createItem(inventoryId: string, data: unknown) {
     where: { inventoryId },
   });
 
-  if (template && (template.elements as unknown[]).length > 0) {
-    if (template && (template.elements as any).length > 0) {
-  const elements = template.elements as unknown as IdElement[];
+  // Fixed the nested if and added double-cast for Prisma JSON
+  if (template && (template.elements as any).length > 0) {
+    const elements = template.elements as unknown as IdElement[];
     let attempts = 0;
     let generated = "";
 
