@@ -25,12 +25,33 @@ model Inventory {
   @@index([userId])
   @@index([userId, name])
 }
+// 1. Add this enum at the top or bottom of your file
+enum FieldKey {
+  text1
+  text2
+  text3
+  multiline1
+  multiline2
+  multiline3
+  num1
+  num2
+  num3
+  bool1
+  bool2
+  bool3
+  link1
+  link2
+  link3
+}
 
 model FieldMeta {
   id          String    @id @default(cuid())
   inventoryId String
   inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-  fieldKey    String
+  
+  // 2. Change 'String' to 'FieldKey'
+  fieldKey    FieldKey
+  
   fieldType   String
   title       String
   description String?

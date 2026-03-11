@@ -65,7 +65,7 @@ export default async function InventoryPage({
       <InventoryTabs
         inventory={{
           ...inventory,
-         fieldMetas: inventory.fieldMetas as FieldMeta[],
+        fieldMetas: inventory.fieldMetas as any as FieldMeta[],
           idTemplate: inventory.idTemplate,
         }}
         items={items.map(item => ({
