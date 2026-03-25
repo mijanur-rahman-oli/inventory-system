@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Package, Settings, Hash, MessageCircle, ArrowLeft } from "lucide-react";
+import {
+  Package,
+  Settings,
+  Hash,
+  MessageCircle,
+  ArrowLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { ItemsTab } from "./ItemsTab";
 import { InventorySettingsTab } from "./InventorySettingsTab";
@@ -16,6 +22,7 @@ interface Props {
     name: string;
     description: string | null;
     imageUrl: string | null;
+    apiToken?: string | null;
     version: number;
     fieldMetas: FieldMeta[];
     idTemplate: {
@@ -52,6 +59,7 @@ export function InventoryTabs(props: Props) {
     searchQuery,
     posts,
   } = props;
+
   const router = useRouter();
   const pathname = usePathname();
 
@@ -123,9 +131,14 @@ export function InventoryTabs(props: Props) {
       {currentTab === "settings" && (
         <InventorySettingsTab inventory={inventory} />
       )}
-      {currentTab === "customId" && <CustomIdTab inventory={inventory} />}
+      {currentTab === "customId" && (
+        <CustomIdTab inventory={inventory} />
+      )}
       {currentTab === "discussion" && (
-        <DiscussionTab inventoryId={inventory.id} initialPosts={posts} />
+        <DiscussionTab
+          inventoryId={inventory.id}
+          initialPosts={posts}
+        />
       )}
     </>
   );

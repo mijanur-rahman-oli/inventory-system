@@ -8,7 +8,7 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
-  title: "InventoryOS",
+  title: "Itransition Inventory",
   description: "Professional inventory management system",
 };
 

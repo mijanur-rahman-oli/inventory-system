@@ -2,7 +2,6 @@ import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
-import { FieldMeta } from "@prisma/client";
 
 export default async function InventoryPage({
   params,
@@ -32,14 +31,14 @@ export default async function InventoryPage({
 
   const where = q
     ? {
-      inventoryId: id,
-      OR: [
-        { customId: { contains: q, mode: "insensitive" as const } },
-        { text1: { contains: q, mode: "insensitive" as const } },
-        { text2: { contains: q, mode: "insensitive" as const } },
-        { text3: { contains: q, mode: "insensitive" as const } },
-      ],
-    }
+        inventoryId: id,
+        OR: [
+          { customId: { contains: q, mode: "insensitive" as const } },
+          { text1: { contains: q, mode: "insensitive" as const } },
+          { text2: { contains: q, mode: "insensitive" as const } },
+          { text3: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
     : { inventoryId: id };
 
   const [itemsCount, items] = await Promise.all([
@@ -52,34 +51,43 @@ export default async function InventoryPage({
     }),
   ]);
 
-  const posts = tab === "discussion"
-    ? await prisma.post.findMany({
-      where: { inventoryId: id },
-      orderBy: { createdAt: "asc" },
-      take: 100,
-    })
-    : [];
+  const posts =
+    tab === "discussion"
+      ? await prisma.post.findMany({
+          where: { inventoryId: id },
+          orderBy: { createdAt: "asc" },
+          take: 100,
+        })
+      : [];
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       <InventoryTabs
         inventory={{
           ...inventory,
-          fieldMetas: inventory.fieldMetas as any, // Cast to any to bypass strict internal checks
+          apiToken: inventory.apiToken ?? null,
+          createdAt: inventory.createdAt.toISOString(),
+          updatedAt: inventory.updatedAt.toISOString(),
+          fieldMetas: inventory.fieldMetas,
           idTemplate: inventory.idTemplate,
         }}
-        items={items.map(item => ({
+        items={items.map((item) => ({
           ...item,
           num1: item.num1 ? Number(item.num1) : null,
           num2: item.num2 ? Number(item.num2) : null,
           num3: item.num3 ? Number(item.num3) : null,
+          createdAt: item.createdAt.toISOString(),
+          updatedAt: item.updatedAt.toISOString(),
         }))}
         itemsTotal={itemsCount}
         totalPages={Math.ceil(itemsCount / pageSize)}
         currentPage={page}
         currentTab={tab}
         searchQuery={q}
-        posts={posts}
+        posts={posts.map((post) => ({
+          ...post,
+          createdAt: post.createdAt.toISOString(),
+        }))}
       />
     </div>
   );

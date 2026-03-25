@@ -2,6 +2,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Package, Layers, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { CRMSyncButton } from "@/components/crm/CRMSyncButton";
 
 export default async function DashboardPage() {
   const userId = await getCurrentUserId();
@@ -101,8 +102,14 @@ export default async function DashboardPage() {
               </Link>
             ))}
           </div>
+          
         )}
       </div>
+      <div className="mt-4 ml-2">
+           <CRMSyncButton />
+
+      </div>
+    
     </div>
   );
 }

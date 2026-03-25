@@ -52,8 +52,7 @@ export function DiscussionTab({ inventoryId, initialPosts }: Props) {
       const result = await createPost(inventoryId, content);
       if ("error" in result) { toast.error(result.error ?? "Error"); return; }
       setContent("");
-      // Socket will deliver the post to all clients including sender
-      // Optimistically add if socket is slow
+
       if (result.post) {
         setPosts((prev) => {
           if (prev.some((p) => p.id === result.post!.id)) return prev;

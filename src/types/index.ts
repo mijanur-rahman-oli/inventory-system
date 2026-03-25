@@ -24,8 +24,8 @@ export interface Inventory {
   description?: string | null;
   imageUrl?: string | null;
   version: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   fieldMetas?: FieldMeta[];
   _count?: { items: number };
 }
@@ -50,8 +50,8 @@ export interface Item {
   link1?: string | null;
   link2?: string | null;
   link3?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type IdElementType =
@@ -68,7 +68,7 @@ export type IdElementType =
 export interface IdElement {
   id: string;
   type: IdElementType;
-  value?: string; // for fixed type
+  value?: string;
 }
 
 export interface IdTemplate {
@@ -85,7 +85,7 @@ export interface Post {
   userName: string;
   userAvatar?: string | null;
   content: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface SearchResult {

@@ -23,13 +23,34 @@ import { saveFieldMetas, updateInventory } from "@/lib/actions/inventories";
 import type { FieldMeta, FieldType, FieldKey } from "@/types";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { ApiTokenPanel } from "./ApiTokenPanel";
 
 const FIELD_GROUPS: { type: FieldType; label: string; keys: FieldKey[] }[] = [
-  { type: "text", label: "Single-line Text", keys: ["text1", "text2", "text3"] },
-  { type: "multiline", label: "Multi-line Text", keys: ["multiline1", "multiline2", "multiline3"] },
-  { type: "numeric", label: "Numeric", keys: ["num1", "num2", "num3"] },
-  { type: "link", label: "Link / Image", keys: ["link1", "link2", "link3"] },
-  { type: "boolean", label: "Boolean", keys: ["bool1", "bool2", "bool3"] },
+  {
+    type: "text",
+    label: "Single-line Text",
+    keys: ["text1", "text2", "text3"],
+  },
+  {
+    type: "multiline",
+    label: "Multi-line Text",
+    keys: ["multiline1", "multiline2", "multiline3"],
+  },
+  {
+    type: "numeric",
+    label: "Numeric",
+    keys: ["num1", "num2", "num3"],
+  },
+  {
+    type: "link",
+    label: "Link / Image",
+    keys: ["link1", "link2", "link3"],
+  },
+  {
+    type: "boolean",
+    label: "Boolean",
+    keys: ["bool1", "bool2", "bool3"],
+  },
 ];
 
 function buildDefaultMetas(existing: FieldMeta[]): FieldMeta[] {
@@ -61,6 +82,7 @@ interface Props {
     id: string;
     name: string;
     description: string | null;
+    apiToken?: string | null;
     version: number;
     fieldMetas: FieldMeta[];
   };
@@ -69,26 +91,35 @@ interface Props {
 export function InventorySettingsTab({ inventory }: Props) {
   const [name, setName] = useState(inventory.name);
   const [desc, setDesc] = useState(inventory.description ?? "");
-  const [metas, setMetas] = useState<FieldMeta[]>(() => buildDefaultMetas(inventory.fieldMetas));
+  const [metas, setMetas] = useState<FieldMeta[]>(() =>
+    buildDefaultMetas(inventory.fieldMetas)
+  );
   const [isDirty, setIsDirty] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle"
+  );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
   );
 
   const handleSave = useCallback(async () => {
     setSaveStatus("saving");
     try {
-      await updateInventory(inventory.id, inventory.version, { name, description: desc });
+      await updateInventory(inventory.id, inventory.version, {
+        name,
+        description: desc,
+      });
       await saveFieldMetas(
         inventory.id,
         metas.map((m, i) => ({
           ...m,
           sortOrder: i,
-          description: m.description ?? undefined // This converts null to undefined
+          description: m.description ?? undefined,
         }))
       );
       setSaveStatus("saved");
@@ -104,14 +135,20 @@ export function InventorySettingsTab({ inventory }: Props) {
   useEffect(() => {
     if (!isDirty) return;
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => { handleSave(); }, 8000);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    timerRef.current = setTimeout(() => {
+      handleSave();
+    }, 8000);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [isDirty, handleSave]);
 
   const markDirty = () => setIsDirty(true);
 
   const updateMeta = (idx: number, patch: Partial<FieldMeta>) => {
-    setMetas((prev) => prev.map((m, i) => (i === idx ? { ...m, ...patch } : m)));
+    setMetas((prev) =>
+      prev.map((m, i) => (i === idx ? { ...m, ...patch } : m))
+    );
     markDirty();
   };
 
@@ -155,18 +192,28 @@ export function InventorySettingsTab({ inventory }: Props) {
       <div className="card p-5 space-y-4">
         <h3 className="font-semibold text-[var(--text)]">Inventory Info</h3>
         <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-1.5">Name *</label>
+          <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+            Name *
+          </label>
           <input
             value={name}
-            onChange={(e) => { setName(e.target.value); markDirty(); }}
+            onChange={(e) => {
+              setName(e.target.value);
+              markDirty();
+            }}
             className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] text-sm focus:border-[var(--accent)] focus:outline-none"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-[var(--text)] mb-1.5">Description</label>
+          <label className="block text-sm font-medium text-[var(--text)] mb-1.5">
+            Description
+          </label>
           <textarea
             value={desc}
-            onChange={(e) => { setDesc(e.target.value); markDirty(); }}
+            onChange={(e) => {
+              setDesc(e.target.value);
+              markDirty();
+            }}
             rows={3}
             className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] text-sm focus:border-[var(--accent)] focus:outline-none resize-none"
           />
@@ -175,13 +222,22 @@ export function InventorySettingsTab({ inventory }: Props) {
 
       {/* Custom Fields */}
       <div className="card p-5">
-        <h3 className="font-semibold text-[var(--text)] mb-1">Custom Fields</h3>
+        <h3 className="font-semibold text-[var(--text)] mb-1">
+          Custom Fields
+        </h3>
         <p className="text-xs text-[var(--text-muted)] mb-4">
           Drag to reorder. Toggle visibility in table. Up to 3 per type.
         </p>
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={metas.map((m) => m.fieldKey)} strategy={verticalListSortingStrategy}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={metas.map((m) => m.fieldKey)}
+            strategy={verticalListSortingStrategy}
+          >
             <div className="space-y-2">
               {metas.map((meta, idx) => (
                 <SortableFieldRow
@@ -194,6 +250,12 @@ export function InventorySettingsTab({ inventory }: Props) {
           </SortableContext>
         </DndContext>
       </div>
+
+      {/* API Token Panel */}
+      <ApiTokenPanel
+        inventoryId={inventory.id}
+        currentToken={inventory.apiToken ?? null}
+      />
     </div>
   );
 }
@@ -205,11 +267,21 @@ function SortableFieldRow({
   meta: FieldMeta;
   onChange: (patch: Partial<FieldMeta>) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: meta.fieldKey,
   });
 
-  const style = { transform: CSS.Transform.toString(transform), transition };
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const typeLabel: Record<string, string> = {
     text: "Text",
@@ -250,7 +322,9 @@ function SortableFieldRow({
 
       <input
         value={meta.description ?? ""}
-        onChange={(e) => onChange({ description: e.target.value || null })}
+        onChange={(e) =>
+          onChange({ description: e.target.value || null })
+        }
         placeholder="Tooltip (optional)"
         className="w-40 px-2 py-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] text-sm focus:border-[var(--accent)] focus:outline-none hidden lg:block"
       />
@@ -265,7 +339,11 @@ function SortableFieldRow({
             : "text-[var(--text-muted)] hover:text-[var(--text)]"
         )}
       >
-        {meta.showInTable ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+        {meta.showInTable ? (
+          <Eye className="w-4 h-4" />
+        ) : (
+          <EyeOff className="w-4 h-4" />
+        )}
       </button>
     </div>
   );

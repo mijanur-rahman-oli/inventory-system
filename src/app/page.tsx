@@ -12,7 +12,7 @@ export default async function Home() {
       <header className="flex items-center justify-between px-8 py-5 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Package className="w-5 h-5 text-[var(--accent)]" />
-          <span className="font-semibold tracking-tight">Itranstion</span>
+          <span className="font-semibold tracking-tight">Itransition</span>
         </div>
         <Link
           href="/sign-in"

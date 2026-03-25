@@ -44,37 +44,55 @@ export async function createItem(inventoryId: string, data: unknown) {
     return { error: "Validation failed" };
   }
 
-  // Generate custom ID if template exists
   let customId: string | null = null;
+
   const template = await prisma.idTemplate.findUnique({
     where: { inventoryId },
   });
 
-  // Fixed the nested if and added double-cast for Prisma JSON
-  if (template && (template.elements as any).length > 0) {
-    const elements = template.elements as unknown as IdElement[];
-    let attempts = 0;
-    let generated = "";
-
-    while (attempts < 5) {
-      generated = generateCustomId(elements, template.sequenceVal);
-      const exists = await prisma.item.findUnique({
-        where: { inventoryId_customId: { inventoryId, customId: generated } },
-      });
-      if (!exists) {
-        customId = generated;
-        break;
-      }
-      attempts++;
+  if (template) {
+    let elements: IdElement[] = [];
+    try {
+      const raw = template.elements;
+      elements = (
+        typeof raw === "string"
+          ? JSON.parse(raw)
+          : Array.isArray(raw)
+          ? raw
+          : []
+      ) as IdElement[];
+    } catch {
+      elements = [];
     }
 
-    if (!customId) return { error: "Could not generate unique custom ID" };
+    if (elements.length > 0) {
+      let attempts = 0;
+      let generated = "";
 
-    // Increment sequence
-    await prisma.idTemplate.update({
-      where: { inventoryId },
-      data: { sequenceVal: { increment: 1 } },
-    });
+      while (attempts < 5) {
+        generated = generateCustomId(elements, template.sequenceVal);
+        const exists = await prisma.item.findUnique({
+          where: {
+            inventoryId_customId: {
+              inventoryId,
+              customId: generated,
+            },
+          },
+        });
+        if (!exists) {
+          customId = generated;
+          break;
+        }
+        attempts++;
+      }
+
+      if (!customId) return { error: "Could not generate unique custom ID" };
+
+      await prisma.idTemplate.update({
+        where: { inventoryId },
+        data: { sequenceVal: { increment: 1 } },
+      });
+    }
   }
 
   const item = await prisma.item.create({
@@ -174,5 +192,16 @@ export async function getItems(
     }),
   ]);
 
-  return { items, total, totalPages: Math.ceil(total / pageSize) };
+  return {
+    items: items.map((item) => ({
+      ...item,
+      num1: item.num1 ? Number(item.num1) : null,
+      num2: item.num2 ? Number(item.num2) : null,
+      num3: item.num3 ? Number(item.num3) : null,
+      createdAt: item.createdAt.toISOString(),
+      updatedAt: item.updatedAt.toISOString(),
+    })),
+    total,
+    totalPages: Math.ceil(total / pageSize),
+  };
 }

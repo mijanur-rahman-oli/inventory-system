@@ -38,7 +38,7 @@ export function Sidebar() {
     <aside
       className={cn(
         "fixed left-0 top-0 z-30 h-screen flex flex-col transition-all duration-300",
-        "border-r border-gray-800 bg-gray-950",
+        "border-r border-gray-300 bg-gray-700",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -46,7 +46,7 @@ export function Sidebar() {
       <div className="flex items-center justify-between px-4 h-16 border-b border-gray-800">
         {!collapsed && (
           <span className="text-white font-semibold text-sm tracking-wide">
-            InventoryOS
+        InventoryOS
           </span>
         )}
         <button
