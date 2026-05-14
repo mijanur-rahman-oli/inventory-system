@@ -17,21 +17,6 @@ export function Header({ title, user }: { title?: string; user?: any }) {
       )}
       <div className="flex-1 lg:flex-none flex justify-end lg:justify-start lg:ml-auto gap-4">
         <GlobalSearch />
-        
-        {/* Support Trigger Button */}
-        <button 
-          onClick={() => setShowSupport(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Support
-        </button>
-
-        {showSupport && (
-          <SupportTicketModal
-            userEmail={user?.primaryEmail ?? ""}
-            onClose={() => setShowSupport(false)}
-          />
-        )}
       </div>
     </header>
   );

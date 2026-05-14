@@ -1,7 +1,7 @@
-import { SignUp } from "@stackframe/stack";
 import { stackServerApp } from "@/stack/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { SignUpWrapper } from "@/components/auth/signUpWrapper";
 
 export default async function SignUpPage() {
   const user = await stackServerApp.getUser();
@@ -15,7 +15,7 @@ export default async function SignUpPage() {
           <p className="text-sm text-[var(--text-muted)] mt-1">Join InventoryOS</p>
         </div>
         <div className="card p-6">
-          <SignUp />
+          <SignUpWrapper />
         </div>
         <p className="text-center text-sm text-[var(--text-muted)]">
           Already have an account?{" "}

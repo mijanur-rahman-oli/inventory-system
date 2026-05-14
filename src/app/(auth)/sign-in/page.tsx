@@ -1,7 +1,8 @@
-import { SignIn } from "@stackframe/stack";
+
 import { stackServerApp } from "@/stack/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { SignInWrapper } from "@/components/auth/signInWrapper";
 
 export default async function SignInPage() {
   const user = await stackServerApp.getUser();
@@ -15,7 +16,7 @@ export default async function SignInPage() {
           <p className="text-sm text-[var(--text-muted)] mt-1">to InventoryOS</p>
         </div>
         <div className="card p-6">
-          <SignIn />
+          <SignInWrapper />
         </div>
         <p className="text-center text-sm text-[var(--text-muted)]">
           <Link href="/" className="hover:text-[var(--text)] transition-colors">
