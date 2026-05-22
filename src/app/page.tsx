@@ -12,9 +12,6 @@ import {
   SiXero, SiSalesforce, SiSlack, SiZapier
 } from "react-icons/si";
 
-// ============================================================================
-// THEME CONTEXT
-// ============================================================================
 const ThemeContext = createContext({ theme: "light", toggleTheme: () => { } });
 export const useTheme = () => useContext(ThemeContext);
 
@@ -22,23 +19,23 @@ function ThemeProvider({ children }) {
   const [theme, setTheme] = useState("light");
   const [mounted, setMounted] = useState(false);
 
-useEffect(() => {
-  const stored = localStorage.getItem("theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const initial = stored || (prefersDark ? "dark" : "light");
-  setTheme(initial);
-  document.documentElement.classList.toggle("dark", initial === "dark");
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initial = stored || (prefersDark ? "dark" : "light");
+    setTheme(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
 
-  setMounted(true);
-}, []);
+    setMounted(true);
+  }, []);
 
-const toggleTheme = () => {
-  const next = theme === "dark" ? "light" : "dark";
-  setTheme(next);
-  localStorage.setItem("theme", next);
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
 
-  document.documentElement.classList.toggle("dark", next === "dark");
-};
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
   if (!mounted) return null;
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
