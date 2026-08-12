@@ -1,15 +1,16 @@
 "use client";
 
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
+    <NextThemesProvider
       attribute="class"
       defaultTheme="light"
-      enableSystem
+      enableSystem={true}
       disableTransitionOnChange={false}
+      storageKey="theme"
     >
       {children}
       <Toaster
@@ -19,6 +20,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           duration: 3000,
         }}
       />
-    </ThemeProvider>
+    </NextThemesProvider>
   );
 }

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/admin/categories"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{adminToken}}
+body:
+  type: text
+  content: |-
+    {
+      "name": "Penthouse"
+    }
+order: 6000

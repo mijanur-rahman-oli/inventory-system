@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Karim Rahman",
+      "email": "landlord@rentnest.com",
+      "password": "landlord123",
+      "phone": "+8801700000000",
+      "role": "LANDLORD"
+    }
+order: 2000

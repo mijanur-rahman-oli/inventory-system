@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
+
 
 // IMPORT ICONS HERE
 import { FaApple, FaGooglePlay, FaAmazon } from "react-icons/fa";
@@ -11,38 +13,6 @@ import {
   SiFedex, SiUps, SiEtsy, SiWoocommerce,
   SiXero, SiSalesforce, SiSlack, SiZapier
 } from "react-icons/si";
-
-const ThemeContext = createContext({ theme: "light", toggleTheme: () => { } });
-export const useTheme = () => useContext(ThemeContext);
-
-function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial = stored || (prefersDark ? "dark" : "light");
-    setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
-
-    setMounted(true);
-  }, []);
-
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    localStorage.setItem("theme", next);
-
-    document.documentElement.classList.toggle("dark", next === "dark");
-  };
-  if (!mounted) return null;
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
 
 function useScrolled() {
   const [scrolled, setScrolled] = useState(false);
@@ -80,18 +50,75 @@ function Reveal({ children, delay = 0, className = "" }) {
   );
 }
 
+// Smooth scroll function
+const scrollToSection = (e, sectionId) => {
+  e.preventDefault();
+  const element = document.getElementById(sectionId);
+  if (element) {
+    const headerOffset = 70;
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth"
+    });
+  }
+};
+
 const NAV = [
-  { label: "Features", href: "#features" },
-  { label: "Why Us", href: "#why" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Integrations", href: "#integrations" },
-  { label: "Resources", href: "#" },
+  { label: "Features", href: "#features", id: "features" },
+  { label: "Why Us", href: "#why", id: "why" },
+  { label: "Pricing", href: "#pricing", id: "pricing" },
+  { label: "Integrations", href: "#integrations", id: "integrations" },
 ];
 
 function Header() {
   const scrolled = useScrolled();
   const [open, setOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Use resolvedTheme for system preference support
+  const currentTheme = resolvedTheme || theme || "light";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    console.log("Toggling theme from", currentTheme, "to", newTheme);
+    setTheme(newTheme);
+  };
+
+  if (!mounted) {
+    return (
+      <header className="fixed top-0 inset-x-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <div className="w-7 h-7 rounded bg-[#E8442A] flex items-center justify-center">
+              <svg width="14" height="14" fill="none" viewBox="0 0 16 16">
+                <rect x="1" y="1" width="6" height="6" rx="1" fill="white" />
+                <rect x="9" y="1" width="6" height="6" rx="1" fill="white" opacity=".7" />
+                <rect x="1" y="9" width="6" height="6" rx="1" fill="white" opacity=".7" />
+                <rect x="9" y="9" width="6" height="6" rx="1" fill="white" opacity=".4" />
+              </svg>
+            </div>
+            <span className="font-bold text-base text-gray-900 dark:text-white tracking-tight">InventoryOS</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/sign-in" className="hidden sm:inline-flex text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              Sign in
+            </Link>
+            <Link href="/sign-up" className="inline-flex text-sm font-semibold bg-[#E8442A] hover:bg-[#d03820] text-white px-4 py-1.5 rounded-md transition-colors shadow-sm">
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-200 ${scrolled ? "bg-white dark:bg-gray-950 shadow-sm" : "bg-white dark:bg-gray-950"} border-b border-gray-200 dark:border-gray-800`}>
@@ -112,22 +139,50 @@ function Header() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-0.5">
           {NAV.map((n) => (
-            <Link key={n.label} href={n.href} className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-              {n.label}
-            </Link>
+            n.id ? (
+              <a
+                key={n.label}
+                href={n.href}
+                onClick={(e) => scrollToSection(e, n.id)}
+                className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+              >
+                {n.label}
+              </a>
+            ) : (
+              <Link key={n.label} href={n.href} className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                {n.label}
+              </Link>
+            )
           ))}
         </nav>
 
         <div className="flex items-center gap-2">
-          {/* <button onClick={toggleTheme} className="hidden sm:flex p-2 rounded-lg text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Toggle theme">
-            {theme === "dark"
-              ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
-              : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>}
+          {/* Theme Toggle Button */}
+          {/* <button 
+            onClick={toggleTheme} 
+            className="p-2 rounded-lg text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
+            aria-label="Toggle theme"
+          >
+            {currentTheme === "dark" ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <circle cx="12" cy="12" r="5" />
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+              </svg>
+            )}
           </button> */}
-          <Link href="/sign-in" className="hidden sm:inline-flex text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Sign in</Link>
+
+          <Link href="/sign-in" className="hidden sm:inline-flex text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            Sign in
+          </Link>
+          
           <Link href="/sign-up" className="inline-flex text-sm font-semibold bg-[#E8442A] hover:bg-[#d03820] text-white px-4 py-1.5 rounded-md transition-colors shadow-sm">
             Get Started
           </Link>
+          
           <button onClick={() => setOpen(!open)} className="md:hidden p-2 rounded-md text-gray-500" aria-label="Menu">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               {open ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />}
@@ -141,11 +196,58 @@ function Header() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="md:hidden overflow-hidden bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800">
             <div className="px-4 py-3 flex flex-col gap-1">
               {NAV.map((n) => (
-                <Link key={n.label} href={n.href} onClick={() => setOpen(false)} className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">{n.label}</Link>
+                n.id ? (
+                  <a
+                    key={n.label}
+                    href={n.href}
+                    onClick={(e) => {
+                      scrollToSection(e, n.id);
+                      setOpen(false);
+                    }}
+                    className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md cursor-pointer"
+                  >
+                    {n.label}
+                  </a>
+                ) : (
+                  <Link key={n.label} href={n.href} onClick={() => setOpen(false)} className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">
+                    {n.label}
+                  </Link>
+                )
               ))}
+              
+              {/* Theme toggle in mobile menu */}
+              <button 
+                onClick={() => {
+                  toggleTheme();
+                  setOpen(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+              >
+                {currentTheme === "dark" ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <circle cx="12" cy="12" r="5" />
+                      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                    </svg>
+                    Light Mode
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                    </svg>
+                    Dark Mode
+                  </>
+                )}
+              </button>
+              
               <div className="pt-2 mt-1 border-t border-gray-100 dark:border-gray-800 flex gap-2">
-                <Link href="/sign-in" className="flex-1 text-center py-2 text-sm text-gray-600 border border-gray-200 rounded-md">Sign in</Link>
-                <Link href="/sign-up" className="flex-1 text-center py-2 text-sm font-semibold bg-[#E8442A] text-white rounded-md">Get Started</Link>
+                <Link href="/sign-in" onClick={() => setOpen(false)} className="flex-1 text-center py-2 text-sm text-gray-600 border border-gray-200 rounded-md">
+                  Sign in
+                </Link>
+                <Link href="/sign-up" onClick={() => setOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold bg-[#E8442A] text-white rounded-md">
+                  Get Started
+                </Link>
               </div>
             </div>
           </motion.div>
@@ -165,9 +267,7 @@ const AppBadge = ({ store }) => {
 
   return (
     <div className="flex items-center gap-3 bg-black text-white px-4 py-2 rounded-xl border border-gray-800 hover:bg-gray-900 transition-colors w-[180px]">
-      {/* This uses the icon we imported earlier */}
       {isGoogle ? <FaGooglePlay size={24} /> : <FaApple size={24} />}
-
       <div className="flex flex-col items-start leading-tight">
         <span className="text-[10px] uppercase font-medium text-gray-400">
           {isGoogle ? "Get it on" : "Download on the"}
@@ -179,7 +279,7 @@ const AppBadge = ({ store }) => {
     </div>
   );
 };
-// Mini dashboard preview card
+
 function DashboardPreview() {
   const items = [
     { name: "Wireless Headphones", sku: "WH-001", qty: 842, status: "In Stock", color: "text-green-600 bg-green-50 dark:bg-green-900/20" },
@@ -189,7 +289,6 @@ function DashboardPreview() {
   ];
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl overflow-hidden">
-      {/* Top bar */}
       <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
         <div className="flex gap-1.5">
           <div className="w-3 h-3 rounded-full bg-red-400/80" />
@@ -204,7 +303,6 @@ function DashboardPreview() {
           Live
         </div>
       </div>
-      {/* Stats row */}
       <div className="grid grid-cols-3 gap-px bg-gray-200 dark:bg-gray-700">
         {[{ label: "Total SKUs", val: "12,847" }, { label: "Orders Today", val: "284" }, { label: "Fulfillment", val: "99.1%" }].map((s) => (
           <div key={s.label} className="bg-white dark:bg-gray-900 px-4 py-3">
@@ -213,7 +311,6 @@ function DashboardPreview() {
           </div>
         ))}
       </div>
-      {/* Table */}
       <div className="p-4">
         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Inventory Items</div>
         <div className="space-y-2">
@@ -240,7 +337,6 @@ function Hero() {
     <section className="pt-24 pb-16 bg-white dark:bg-gray-950 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left */}
           <div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 mb-5">
@@ -281,7 +377,6 @@ function Hero() {
               </Link>
             </motion.div>
 
-
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -292,7 +387,6 @@ function Hero() {
             </motion.p>
           </div>
 
-          {/* Right - Dashboard */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -302,7 +396,6 @@ function Hero() {
           </motion.div>
         </div>
 
-        {/* Trusted By */}
         <div className="mt-16 pt-8 border-t border-gray-100 dark:border-gray-800">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest text-center mb-6">Trusted by industry leaders</p>
           <div className="flex flex-wrap items-center justify-center gap-8">
@@ -319,7 +412,7 @@ function Hero() {
 }
 
 // ============================================================================
-// FEATURE STRIPS (like Zoho's alternating sections)
+// FEATURE STRIPS
 // ============================================================================
 const FEATURE_SECTIONS = [
   {
@@ -447,7 +540,7 @@ const FEATURE_SECTIONS = [
 
 function FeatureSections() {
   return (
-    <section id="features" className="py-16 bg-white dark:bg-gray-950">
+    <section id="features" className="py-16 bg-white dark:bg-gray-950 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <Reveal className="text-center mb-14">
           <p className="text-xs font-bold text-[#E8442A] uppercase tracking-widest mb-2">Core Features</p>
@@ -495,7 +588,7 @@ function FeatureSections() {
 }
 
 // ============================================================================
-// CTA BANNER (Zoho-style orange band)
+// CTA BANNER
 // ============================================================================
 function CTABanner() {
   return (
@@ -541,7 +634,7 @@ function CTABanner() {
 }
 
 // ============================================================================
-// EVERYTHING YOU NEED (feature grid)
+// EVERYTHING YOU NEED
 // ============================================================================
 const EVERYTHING = [
   { icon: "↻", title: "Multi-Channel Sync", desc: "Sell on 15+ platforms simultaneously with real-time inventory updates." },
@@ -550,12 +643,11 @@ const EVERYTHING = [
   { icon: "◉", title: "Live Analytics", desc: "Real-time KPI dashboards with drill-down reporting." },
   { icon: "⚡", title: "Barcode Scanning", desc: "Scan any barcode format to receive, pick, and ship orders fast." },
   { icon: "🔗", title: "REST API", desc: "Integrate with anything via our full-featured REST API." },
-
 ];
 
 function EverythingYouNeed() {
   return (
-    <section id="why" className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section id="why" className="py-16 bg-gray-50 dark:bg-gray-900 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <Reveal className="text-center mb-12">
           <p className="text-xs font-bold text-[#E8442A] uppercase tracking-widest mb-2">Complete Platform</p>
@@ -581,13 +673,191 @@ function EverythingYouNeed() {
   );
 }
 
+// ============================================================================
+// PRICING
+// ============================================================================
+// ============================================================================
+// PRICING
+// ============================================================================
+const PLANS = [
+  { 
+    name: "Free", 
+    monthly: 0, 
+    yearly: 0, 
+    desc: "For solo sellers", 
+    features: ["100 SKUs", "1 warehouse", "Basic reports", "Email support", "2 integrations"], 
+    cta: "Get Started Free", 
+    popular: false,
+    href: "/sign-up"
+  },
+  { 
+    name: "Standard", 
+    monthly: 49, 
+    yearly: 39, 
+    desc: "For growing teams", 
+    features: ["2,000 SKUs", "3 warehouses", "Advanced analytics", "Priority support", "10 integrations", "Barcode scanning"], 
+    cta: "Start Free Trial", 
+    popular: false,
+    href: "/sign-up"
+  },
+  { 
+    name: "Professional", 
+    monthly: 129, 
+    yearly: 99, 
+    desc: "For scaling operations", 
+    features: ["20,000 SKUs", "Unlimited warehouses", "Custom fields (15+)", "Dedicated support", "Unlimited integrations", "Real-time WebSocket sync", "Optimistic locking"], 
+    cta: "Start Free Trial", 
+    popular: true,
+    href: "/sign-up"
+  },
+  { 
+    name: "Enterprise", 
+    monthly: 299, 
+    yearly: 229, 
+    desc: "Enterprise control", 
+    features: ["Unlimited SKUs", "Global warehouses", "White-label option", "SLA guarantee", "Custom integrations", "Dedicated CSM", "SSO & SAML"], 
+    cta: "Contact Sales", 
+    popular: false,
+    href: "/sign-up"
+  },
+];
+
+function Pricing() {
+  const [yearly, setYearly] = useState(true);
+  
+  const handleCTAClick = (planName, ctaText) => {
+    console.log(`Plan: ${planName}, CTA: ${ctaText} clicked`);
+  };
+
+  return (
+    <section id="pricing" className="py-16 bg-gray-50 dark:bg-gray-900 scroll-mt-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <Reveal className="text-center mb-10">
+          <p className="text-xs font-bold text-[#E8442A] uppercase tracking-widest mb-2">Simple Pricing</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">Choose the plan that fits your business</h2>
+          <p className="text-gray-600 dark:text-gray-400">All plans include a 14-day free trial. No credit card required.</p>
+          <div className="mt-6 inline-flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1">
+            <button 
+              onClick={() => setYearly(false)} 
+              className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${
+                !yearly ? "bg-[#E8442A] text-white shadow-sm" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              Monthly
+            </button>
+            <button 
+              onClick={() => setYearly(true)} 
+              className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${
+                yearly ? "bg-[#E8442A] text-white shadow-sm" : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}
+            >
+              Yearly
+              <span className="ml-1 text-[10px] font-bold text-green-500 dark:text-green-400">Save 20%</span>
+            </button>
+          </div>
+          {yearly && (
+            <div className="mt-2 text-xs text-green-600 dark:text-green-400 font-medium">
+              Save up to 23% with yearly billing
+            </div>
+          )}
+        </Reveal>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {PLANS.map((plan, i) => (
+            <Reveal key={plan.name} delay={i * 70}>
+              <div 
+                className={`relative bg-white dark:bg-gray-950 rounded-2xl border ${
+                  plan.popular 
+                    ? "border-[#E8442A] shadow-lg shadow-[#E8442A]/10 dark:shadow-[#E8442A]/20" 
+                    : "border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700"
+                } p-5 transition-all duration-300 hover:shadow-lg flex flex-col h-full`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#E8442A] text-white text-xs font-bold rounded-full whitespace-nowrap shadow-md">
+                    Most Popular
+                  </div>
+                )}
+                
+                {/* Content that grows */}
+                <div className="flex-1 flex flex-col">
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">{plan.name}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mb-4">{plan.desc}</p>
+                    
+                    <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {plan[yearly ? "yearly" : "monthly"] === 0 ? "Free" : `$${plan[yearly ? "yearly" : "monthly"]}`}
+                      </span>
+                      {plan[yearly ? "yearly" : "monthly"] > 0 && (
+                        <span className="text-sm text-gray-400">/mo</span>
+                      )}
+                      {yearly && plan[yearly ? "yearly" : "monthly"] > 0 && (
+                        <span className="ml-2 text-xs text-green-600 dark:text-green-400 font-medium">
+                          ${plan.monthly * 12 - plan.yearly * 12} saved/year
+                        </span>
+                      )}
+                    </div>
+                    
+                    <ul className="space-y-2.5 mb-6">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                          <svg className="w-4 h-4 mt-0.5 text-[#E8442A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Button section - always at bottom */}
+                <div className="mt-auto pt-2">
+                  <Link 
+                    href={plan.href}
+                    onClick={() => handleCTAClick(plan.name, plan.cta)}
+                    className={`block w-full text-center py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                      plan.popular 
+                        ? "bg-[#E8442A] hover:bg-[#d03820] text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5" 
+                        : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 hover:shadow-md transform hover:-translate-y-0.5"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                  
+                  {plan.name !== "Free" && (
+                    <p className="text-center text-[10px] text-gray-400 dark:text-gray-500 mt-3">
+                      No credit card required • Cancel anytime
+                    </p>
+                  )}
+                  
+                  {plan.name === "Enterprise" && (
+                    <p className="text-center text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                      Custom solutions for large teams
+                    </p>
+                  )}
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        
+        <Reveal className="text-center mt-12">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Need a custom plan? <Link href="/sign-up" className="text-[#E8442A] font-semibold hover:underline">Contact our sales team</Link>
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 
 // ============================================================================
 // INTEGRATIONS
 // ============================================================================
 const INTEGRATIONS = [
   { name: "Shopify", color: "#96bf48", icon: SiShopify },
-  { name: "Amazon", color: "#FF9900", icon: FaAmazon }, // Updated this line
+  { name: "Amazon", color: "#FF9900", icon: FaAmazon },
   { name: "QuickBooks", color: "#2CA01C", icon: SiQuickbooks },
   { name: "Stripe", color: "#635BFF", icon: SiStripe },
   { name: "FedEx", color: "#4D148C", icon: SiFedex },
@@ -602,7 +872,7 @@ const INTEGRATIONS = [
 
 function Integrations() {
   return (
-    <section id="integrations" className="py-16 bg-white dark:bg-gray-950">
+    <section id="integrations" className="py-16 bg-white dark:bg-gray-950 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <Reveal className="text-center mb-10">
           <p className="text-xs font-bold text-[#E8442A] uppercase tracking-widest mb-2">Integrations</p>
@@ -613,14 +883,12 @@ function Integrations() {
           {INTEGRATIONS.map((int, i) => (
             <Reveal key={int.name} delay={i * 40}>
               <div className="flex flex-col items-center justify-center gap-3 p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all group bg-gray-50/50 dark:bg-gray-900/50">
-                {/* Logo Container */}
                 <div
                   className="text-2xl transition-transform group-hover:scale-110 duration-300"
                   style={{ color: int.color }}
                 >
                   <int.icon size={32} />
                 </div>
-
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold text-center leading-tight">
                   {int.name}
                 </span>
@@ -637,74 +905,6 @@ function Integrations() {
             </svg>
           </Link>
         </Reveal>
-      </div>
-    </section>
-  );
-}
-
-// ============================================================================
-// PRICING
-// ============================================================================
-const PLANS = [
-  { name: "Free", monthly: 0, yearly: 0, desc: "For solo sellers", features: ["100 SKUs", "1 warehouse", "Basic reports", "Email support", "2 integrations"], cta: "Get Started Free", popular: false },
-  { name: "Standard", monthly: 49, yearly: 39, desc: "For growing teams", features: ["2,000 SKUs", "3 warehouses", "Advanced analytics", "Priority support", "10 integrations", "Barcode scanning"], cta: "Start Free Trial", popular: false },
-  { name: "Professional", monthly: 129, yearly: 99, desc: "For scaling operations", features: ["20,000 SKUs", "Unlimited warehouses", "Custom fields (15+)", "Dedicated support", "Unlimited integrations", "Real-time WebSocket sync", "Optimistic locking"], cta: "Start Free Trial", popular: true },
-  { name: "Enterprise", monthly: 299, yearly: 229, desc: "Enterprise control", features: ["Unlimited SKUs", "Global warehouses", "White-label option", "SLA guarantee", "Custom integrations", "Dedicated CSM", "SSO & SAML"], cta: "Contact Sales", popular: false },
-];
-
-function Pricing() {
-  const [yearly, setYearly] = useState(true);
-  return (
-    <section id="pricing" className="py-16 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <Reveal className="text-center mb-10">
-          <p className="text-xs font-bold text-[#E8442A] uppercase tracking-widest mb-2">Simple Pricing</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">No surprises.</h2>
-          <p className="text-gray-600 dark:text-gray-400">All plans include a 14-day free trial. No credit card required.</p>
-          {/* Toggle */}
-          <div className="mt-6 inline-flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-1">
-            <button onClick={() => setYearly(false)} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${!yearly ? "bg-[#E8442A] text-white" : "text-gray-600 dark:text-gray-400"}`}>Monthly</button>
-            <button onClick={() => setYearly(true)} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${yearly ? "bg-[#E8442A] text-white" : "text-gray-600 dark:text-gray-400"}`}>Yearly</button>
-          </div>
-          {yearly && <div className="mt-2 text-xs text-green-600 dark:text-green-400 font-medium">Save up to 23% with yearly billing</div>}
-        </Reveal>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {PLANS.map((plan, i) => (
-            <Reveal key={plan.name} delay={i * 70}>
-              <div className={`relative bg-white dark:bg-gray-950 rounded-2xl border ${plan.popular ? "border-[#E8442A] shadow-lg shadow-[#E8442A]/10" : "border-gray-200 dark:border-gray-800"} p-5 h-full flex flex-col`}>
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#E8442A] text-white text-xs font-bold rounded-full whitespace-nowrap">
-                    Most Popular
-                  </div>
-                )}
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-base">{plan.name}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5 mb-4">{plan.desc}</p>
-                  <div className="flex items-baseline gap-1 mb-5 pb-5 border-b border-gray-100 dark:border-gray-800">
-                    <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {plan[yearly ? "yearly" : "monthly"] === 0 ? "Free" : `$${plan[yearly ? "yearly" : "monthly"]}`}
-                    </span>
-                    {plan[yearly ? "yearly" : "monthly"] > 0 && <span className="text-sm text-gray-400">/mo</span>}
-                  </div>
-                  <ul className="space-y-2 mb-6">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-                        <svg className="w-3.5 h-3.5 text-[#E8442A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mt-auto">
-                  <Link href={plan.cta === "Contact Sales" ? "/contact" : "/sign-up"} className={`block w-full text-center py-2.5 rounded-lg text-sm font-semibold transition-colors ${plan.popular ? "bg-[#E8442A] hover:bg-[#d03820] text-white" : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"}`}>
-                    {plan.cta}
-                  </Link>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -773,17 +973,12 @@ function FinalCTA() {
           </div>
           <p className="text-red-200 text-xs mt-5">14-day free trial · No credit card required · Cancel anytime</p>
           <div className="flex justify-center gap-4 mt-6">
-
-            {/* Google Play Link */}
             <Link href="https://play.google.com" target="_blank" rel="noopener noreferrer">
               <AppBadge store="google" />
             </Link>
-
-            {/* Apple App Store Link */}
             <Link href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
               <AppBadge store="apple" />
             </Link>
-
           </div>
         </Reveal>
       </div>
@@ -795,10 +990,11 @@ function FinalCTA() {
 // FOOTER
 // ============================================================================
 const FOOTER_LINKS = {
-  Product: ["Features", "Pricing", "Changelog", "Integrations", "API Docs"],
-  Company: ["About", "Blog", "Careers", "Press", "Partners"],
-  Support: ["Documentation", "API Reference", "Status Page", "Contact", "Community"],
-  Legal: ["Privacy Policy", "Terms of Service", "Security", "Cookies"],
+  Product: [
+    { label: "Features", href: "#features", id: "features" },
+    { label: "Pricing", href: "#pricing", id: "pricing" },
+    { label: "Integrations", href: "#integrations", id: "integrations" }
+  ]
 };
 
 function Footer() {
@@ -830,8 +1026,20 @@ function Footer() {
               <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">{cat}</h4>
               <ul className="space-y-2">
                 {links.map((l) => (
-                  <li key={l}>
-                    <Link href="#" className="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">{l}</Link>
+                  <li key={l.label}>
+                    {l.id ? (
+                      <a
+                        href={l.href}
+                        onClick={(e) => scrollToSection(e, l.id)}
+                        className="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link href={l.href} className="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -878,22 +1086,31 @@ function FloatingChat() {
 }
 
 // ============================================================================
-// ROOT PAGE
+// ROOT PAGE - FIXED
 // ============================================================================
 export default function InventoryHomePage() {
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Use resolvedTheme for system preference, fallback to theme
+  const currentTheme = resolvedTheme || theme;
+
   useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      html { scroll-behavior: smooth; }
-      html[data-theme="dark"] { color-scheme: dark; }
-      html[data-theme="light"] { color-scheme: light; }
-    `;
-    document.head.appendChild(style);
-    return () => { document.head.removeChild(style); };
+    setMounted(true);
+    // Log for debugging
+    console.log("Page mounted, theme:", currentTheme);
   }, []);
 
-  return (
-    <ThemeProvider>
+  // Log when theme changes
+  useEffect(() => {
+    if (mounted) {
+      console.log("Theme changed to:", currentTheme);
+    }
+  }, [currentTheme, mounted]);
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
       <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-200">
         <Header />
         <main>
@@ -901,14 +1118,34 @@ export default function InventoryHomePage() {
           <FeatureSections />
           <CTABanner />
           <EverythingYouNeed />
-          <Integrations />
           <Testimonials />
           <Pricing />
+          <Integrations />
           <FinalCTA />
         </main>
         <Footer />
         <FloatingChat />
       </div>
-    </ThemeProvider>
+    );
+  }
+
+  return (
+    <div className={`min-h-screen transition-colors duration-200 ${
+      currentTheme === "dark" ? "bg-gray-950" : "bg-white"
+    }`}>
+      <Header />
+      <main>
+        <Hero />
+        <FeatureSections />
+        <CTABanner />
+        <EverythingYouNeed />
+        <Testimonials />
+        <Pricing />
+        <Integrations />
+        <FinalCTA />
+      </main>
+      <Footer />
+      <FloatingChat />
+    </div>
   );
 }

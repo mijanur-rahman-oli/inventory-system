@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/rentals"
+method: GET
+headers:
+  Authorization: Bearer {{tenantToken}}
+order: 2000

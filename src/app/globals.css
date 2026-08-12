@@ -15,6 +15,7 @@
   --warning: #f59e0b;
 }
 
+/* Support dark mode */
 .dark {
   --bg: #0d0d0d;
   --bg-card: #1a1a1a;

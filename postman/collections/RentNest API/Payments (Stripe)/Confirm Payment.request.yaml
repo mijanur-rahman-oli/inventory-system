@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/payments/confirm"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tenantToken}}
+body:
+  type: text
+  content: |-
+    {
+      "sessionId": "{{paymentSessionId}}"
+    }
+order: 2000

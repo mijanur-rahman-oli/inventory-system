@@ -1,0 +1,14 @@
+$kind: http-request
+name: Approve/Reject Request
+url: "{{baseUrl}}/landlord/requests/{{rentalRequestId}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{landlordToken}}
+body:
+  type: text
+  content: |-
+    {
+      "status": "APPROVED"
+    }
+order: 6000

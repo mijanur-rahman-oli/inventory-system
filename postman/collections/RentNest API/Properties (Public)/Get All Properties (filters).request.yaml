@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/properties?city=Dhaka&type=APARTMENT&minPrice=10000&maxPrice=60000&page=1&limit=10"
+method: GET
+queryParams:
+  city: Dhaka
+  type: APARTMENT
+  minPrice: "10000"
+  maxPrice: "60000"
+  page: "1"
+  limit: "10"
+order: 1000

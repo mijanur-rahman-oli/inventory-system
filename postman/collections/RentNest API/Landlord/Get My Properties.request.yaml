@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/landlord/properties"
+method: GET
+headers:
+  Authorization: Bearer {{landlordToken}}
+order: 2000

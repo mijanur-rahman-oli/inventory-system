@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/payments/create"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tenantToken}}
+body:
+  type: text
+  content: |-
+    {
+      "rentalRequestId": "{{rentalRequestId}}"
+    }
+order: 1000

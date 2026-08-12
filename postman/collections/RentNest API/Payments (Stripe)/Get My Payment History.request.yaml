@@ -1,0 +1,6 @@
+$kind: http-request
+url: "{{baseUrl}}/payments"
+method: GET
+headers:
+  Authorization: Bearer {{tenantToken}}
+order: 3000

@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/reviews"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{tenantToken}}
+body:
+  type: text
+  content: |-
+    {
+      "rentalRequestId": "{{rentalRequestId}}",
+      "rating": 5,
+      "comment": "Great place, responsive landlord!"
+    }
+order: 1000

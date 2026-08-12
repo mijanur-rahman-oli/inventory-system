@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/landlord/properties/{{propertyId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{landlordToken}}
+body:
+  type: text
+  content: |-
+    {
+      "price": 48000
+    }
+order: 3000

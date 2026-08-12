@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="light">
       <body className={`${geist.variable} font-sans antialiased`}>
         <StackProvider app={stackServerApp}>
           <StackTheme>

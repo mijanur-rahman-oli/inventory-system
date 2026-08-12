@@ -1,0 +1,12 @@
+$kind: collection
+name: RentNest API
+description: Rental Property Marketplace Backend API - Postman Collection
+variables:
+  baseUrl: http://localhost:5000/api
+  tenantToken: ""
+  landlordToken: ""
+  adminToken: ""
+  propertyId: ""
+  rentalRequestId: ""
+  paymentSessionId: ""
+  userId: ""

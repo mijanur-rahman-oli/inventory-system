@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/landlord/properties"
+method: POST
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{landlordToken}}
+body:
+  type: text
+  content: |-
+    {
+      "title": "Cozy 2-Bed Apartment in Gulshan",
+      "description": "A modern, well-lit 2-bedroom apartment.",
+      "type": "APARTMENT",
+      "price": 45000,
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "areaSqft": 1100,
+      "address": "Road 11, Gulshan 2",
+      "city": "Dhaka",
+      "amenities": ["Wifi", "Parking"],
+      "images": ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"]
+    }
+order: 1000

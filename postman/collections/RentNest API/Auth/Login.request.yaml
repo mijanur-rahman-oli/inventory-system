@@ -1,0 +1,19 @@
+$kind: http-request
+name: Login
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "landlord@rentnest.com",
+      "password": "landlord123"
+    }
+
+    {
+      "email": "admin@gmail.com",
+      "password": "admin123"
+    }
+order: 3000
